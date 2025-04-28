@@ -1,102 +1,152 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [display, setDisplay] = useState("");
+  const [result, setResult] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleButtonClick = (value: string) => {
+    if (value === "=") {
+      try {
+        // For scientific calculations, we need to replace some functions
+        let expression = display
+          .replace(/sin\(/g, "Math.sin(")
+          .replace(/cos\(/g, "Math.cos(")
+          .replace(/tan\(/g, "Math.tan(")
+          .replace(/log\(/g, "Math.log10(")
+          .replace(/ln\(/g, "Math.log(")
+          .replace(/sqrt\(/g, "Math.sqrt(")
+          .replace(/π/g, "Math.PI")
+          .replace(/e/g, "Math.E")
+          .replace(/\^/g, "**");
+
+        // eslint-disable-next-line no-eval
+        const calculatedResult = eval(expression);
+        setResult(calculatedResult.toString());
+      } catch (error) {
+        setResult("Error");
+      }
+    } else if (value === "C") {
+      setDisplay("");
+      setResult("");
+    } else if (value === "⌫") {
+      setDisplay(display.slice(0, -1));
+    } else {
+      setDisplay(display + value);
+    }
+  };
+
+  // Scientific functions and special buttons
+  const scientificButtons = [
+    { value: "sin(", className: "bg-blue-500" },
+    { value: "cos(", className: "bg-blue-500" },
+    { value: "tan(", className: "bg-blue-500" },
+    { value: "log(", className: "bg-blue-500" },
+    { value: "ln(", className: "bg-blue-500" },
+    { value: "sqrt(", className: "bg-blue-500" },
+    { value: "π", className: "bg-blue-500" },
+    { value: "e", className: "bg-blue-500" },
+    { value: "(", className: "bg-gray-500" },
+    { value: ")", className: "bg-gray-500" },
+  ];
+
+  // Number buttons and decimal point
+  const numberButtons = [
+    { value: "7", className: "bg-gray-300" },
+    { value: "8", className: "bg-gray-300" },
+    { value: "9", className: "bg-gray-300" },
+    { value: "4", className: "bg-gray-300" },
+    { value: "5", className: "bg-gray-300" },
+    { value: "6", className: "bg-gray-300" },
+    { value: "1", className: "bg-gray-300" },
+    { value: "2", className: "bg-gray-300" },
+    { value: "3", className: "bg-gray-300" },
+    { value: "0", className: "bg-gray-300 col-span-2" },
+    { value: ".", className: "bg-gray-300" },
+  ];
+
+  // Operator buttons on the right
+  const operatorButtons = [
+    { value: "C", className: "bg-red-500" },
+    { value: "⌫", className: "bg-red-500" },
+    { value: "^", className: "bg-gray-500" },
+    { value: "%", className: "bg-gray-500" },
+    { value: "/", className: "bg-gray-500" },
+    { value: "*", className: "bg-gray-500" },
+    { value: "-", className: "bg-gray-500" },
+    { value: "+", className: "bg-gray-500" },
+    { value: "=", className: "bg-green-500" },
+  ];
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100 dark:bg-gray-900">
+      <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+        Scientific Calculator
+      </h1>
+
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        {/* Display */}
+        <div className="p-4 bg-gray-200 dark:bg-gray-700">
+          <div className="h-12 mb-2 p-2 bg-white dark:bg-gray-600 rounded text-right overflow-x-auto whitespace-nowrap text-lg">
+            {display || "0"}
+          </div>
+          <div className="h-10 p-2 bg-gray-100 dark:bg-gray-500 rounded text-right overflow-x-auto whitespace-nowrap font-bold text-xl">
+            {result || "0"}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+        {/* Scientific Functions */}
+        <div className="grid grid-cols-5 gap-1 p-4 pt-2">
+          {scientificButtons.map((button, index) => (
+            <button
+              key={`sci-${index}`}
+              onClick={() => handleButtonClick(button.value)}
+              className={`${button.className} text-white dark:text-gray-200 p-3 rounded-lg hover:opacity-80 transition-opacity font-medium text-lg focus:outline-none`}
+            >
+              {button.value}
+            </button>
+          ))}
+        </div>
+
+        {/* Main Calculator Grid */}
+        <div className="grid grid-cols-4 gap-1 px-4 pb-4">
+          {/* Numbers (3x4 grid) */}
+          <div className="col-span-3 grid grid-cols-3 gap-1">
+            {numberButtons.map((button, index) => (
+              <button
+                key={`num-${index}`}
+                onClick={() => handleButtonClick(button.value)}
+                className={`${button.className} ${
+                  button.value === "0" ? "col-span-2" : ""
+                } 
+                  text-gray-800 dark:text-gray-200 p-3 rounded-lg hover:opacity-80 transition-opacity
+                  font-medium text-lg focus:outline-none`}
+              >
+                {button.value}
+              </button>
+            ))}
+          </div>
+
+          {/* Operators (1x4 column) */}
+          <div className="grid grid-cols-1 gap-1">
+            {operatorButtons.map((button, index) => (
+              <button
+                key={`op-${index}`}
+                onClick={() => handleButtonClick(button.value)}
+                className={`${button.className} 
+                  text-white dark:text-gray-200 p-3 rounded-lg hover:opacity-80 transition-opacity
+                  font-medium text-lg focus:outline-none`}
+              >
+                {button.value}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <footer className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        <p>Scientific Calculator © {new Date().getFullYear()}</p>
       </footer>
     </div>
   );
